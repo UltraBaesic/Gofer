@@ -1,0 +1,179 @@
+swagger: '2.0'
+info:
+  description: Node.js Rest API doc
+  version: '1.0.0'
+  title: Node Rest API documentation
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: oluwasegunayobami7@gmail.com
+    phoneNumber: 08032748047
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: localhost:3000
+basePath: /
+schemes:
+- http
+paths:
+  /user/login:
+    post:
+      tags:
+        - User Module
+      summary: Login
+      description: API for Login
+      parameters:
+        - in: body
+          name: body
+          description: Login Payload
+          required: true
+          schema:
+            $ref: '#/definitions/Login'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Login Successfully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /user/register:
+    post:
+      tags:
+        - User Module
+      summary: Signup
+      description: API for Signup
+      parameters:
+        - in: body
+          name: body
+          description: Signup Payload
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Signup Successfully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /user/profile/{id}:
+    get:
+      security:
+        - Bearer: []
+      tags:
+      - User Module
+      summary: Profile Details
+      description: Fetch User Profile Details
+      parameters:
+        - name: id
+          in: path
+          description: User Id
+          type: string
+          required: true
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Product Fetched Successfully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+    put:
+      security:
+        - Bearer: []
+      tags:
+      - User Module
+      summary: Update Profile
+      description: Update User Profile
+      parameters:
+        - name: id
+          in: path
+          description: User Id
+          type: string
+          required: true
+        - in: body
+          name: body
+          description: Update User Payload
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Profile Updated Successfully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+    delete:
+      security:
+        - Bearer: []
+      tags:
+      - User Module
+      summary: Remove/Delete Profile
+      description: Remove/Delete User Profile
+      parameters:
+        - name: id
+          in: path
+          description: User Id
+          type: string
+          required: true
+      produces:
+        - application/json
+      responses:
+        204:
+          description: User Deleted Successfully
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  User:
+    properties:
+      name:
+        type: string
+        description: name of user
+      email:
+        type: string
+        description: email of user
+      phoneNumber:
+        type: string 
+        description: phone number of user
+      password:
+        type: string
+        description: password of the user
+  Login:
+    properties:
+      email:
+        type: string
+        description: User Email
+      password:
+        type: string
+        description: User Password
+  ApiResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      body:
+        type: object
