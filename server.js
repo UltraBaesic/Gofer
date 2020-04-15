@@ -22,6 +22,7 @@ app.use(express.urlencoded({extended: true}));
 
 //Creating User API
 app.use('/user', require('./routes/userRoutes'));
+app.use('/errand', require('./routes/errandRoutes'));
 
 //API Documentation
 if (process.env.NODE_ENV != 'production'){

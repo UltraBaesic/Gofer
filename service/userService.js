@@ -25,9 +25,9 @@ module.exports.createUser = async ({name, email, phoneNumber, password}) => {
 }
 
    
-module.exports.login = async ({email, password}) => {
+module.exports.login = async ({email, phoneNumber, password}) => {
     try{
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ $or: [{ email }, {phoneNumber}]});
         if(!user){
             throw new Error(constants.userMessage.USER_NOT_FOUND);
         }
