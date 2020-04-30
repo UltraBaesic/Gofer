@@ -1,21 +1,40 @@
 const mongoose = require('mongoose');
+const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 
 const errandSchema = new mongoose.Schema({
-    posterID: Joi.string(),
-    category: Joi.string(),
-    pickupLocation: Joi.string(),
-    deliveryLocation: Joi.string(),
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'Category'
+  },
+    address: {
+        type: String,
+        required: true
+    },
+    location: {
+        type: String,
+        required: true
+    },
     description: {
         type: String,
         required: true,
         unique: true
     },
-    amount: Joi.string(),
-    deadlineDate: {
-        type: Date,
-        default: Date.now,
+    amount: {
+        type: String,
+        required: true
     },
-    insurance: Joi.string(),
+    deadlineDate: {
+        type: String
+    },
+    deadlineTime: {
+        type: String
+    },
+    insurance: String,
     status: {
         type: String,
         default: "pending",
@@ -31,5 +50,7 @@ const errandSchema = new mongoose.Schema({
         }
     }
 });
+
+errandSchema.plugin(aggregatePaginate);
 
 module.exports = mongoose.model('Errand', errandSchema);

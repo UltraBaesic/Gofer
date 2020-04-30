@@ -10,6 +10,7 @@ module.exports.validateToken = (req, res, next) => {
         // console.log(req.headers.authorization.split('Bearer')[1].trim());
         const token = req.headers.authorization.split('Bearer')[1].trim();
         const decoded = jwt.verify(token, process.env.SECRET_KEY || 'my_secret_key');
+        req.userId = decoded.id;
         console.log('decoded', decoded);
         return next();
     }

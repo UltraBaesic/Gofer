@@ -8,24 +8,28 @@ const tokenValidation = require('../middleware/tokenValidation');
 router.post('/', 
 tokenValidation.validateToken,
 joiSchemaValidation.validateBody(errandSchema.createErrandSchema), 
-productController.createProduct);
+errandController.createErrand);
+
+router.get('/category', 
+joiSchemaValidation.validateBody(errandSchema.categorySchema), 
+errandController.getCategory);
 
 router.get('/:id', 
 tokenValidation.validateToken,
-errandController.getProductById);
+errandController.getErrandById);
 
 router.put('/:id', 
 tokenValidation.validateToken,
-joiSchemaValidation.validateBody(productSchema.updateProductSchema),
-productController.updateProductById);
+joiSchemaValidation.validateBody(errandSchema.updateErrandSchema),
+errandController.updateErrandById);
 
 router.get('/',
 tokenValidation.validateToken, 
-joiSchemaValidation.validateQueryParams(productSchema.getAllproductSchema),
-errandController.getAllProduct); 
+joiSchemaValidation.validateQueryParams(errandSchema.getAllErrandSchema),
+errandController.getAllErrand); 
 
 router.delete('/:id', 
 tokenValidation.validateToken,
-productController.deleteProductById);
+errandController.deleteErrandById);
 
 module.exports = router;

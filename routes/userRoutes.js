@@ -26,4 +26,11 @@ router.delete('/profile/:id',
 tokenValidation.validateToken,
 userController.deleteProfileById);
 
+router.post("/change-password", 
+tokenValidation.validateToken, 
+userController.changePassword);
+
+router.post("/check-code", 
+userController.checkCode);
+
 module.exports = router;

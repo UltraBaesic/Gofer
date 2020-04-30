@@ -1,31 +1,24 @@
 const Errand = require('../database/models/errandModel');
+const Category = require('../database/models/categoryModel');
 const {formatMongoData, chkObjectId} = require('../helper/dbHelper');
 const constants = require('../constants');
 const mongoose = require('mongoose');
-const {User} = require('../database/models/userModel');
+const jwt = require('jsonwebtoken');
+// const {User} = require('../database/models/userModel');
+// const tokenValidation = require('../middleware/tokenValidation');
 
 mongoose.set('useFindAndModify', false);
 
-module.exports.createErrand = async (req, res) => {
+module.exports.createErrand = async (userId, serivceData) => {
     try{
-        let {category, pickupLocation, deliveryLocation, description, amount, deadlineDate, insurance} = req.body;
-        let dupErrand  = await Errand.findOne({ $or: [{ category }, { description }, { pickupLocation }, { deliveryLocation }] });
+        let dupErrand  = await Errand.findOne({ $and: [{ category }, { description }, { address }, { location }] });
         if (dupErrand) return res.send({
             code: 400,
             message: "Errand already existing, please create new",
             data: {}
         });
-        const { user_id } = User.findById(req.user.id);
-        let errand = new Errand({ 
-            posterID: user_id,
-            category,
-            pickupLocation,
-            deliveryLocation,
-            description,
-            amount,
-            deadlineDate,
-            insurance
-            });
+        chkObjectId(userId);
+        let errand = new Errand({...serivceData, userId});
         let result = await errand.save();
         return formatMongoData(result);
     } catch (error){
@@ -34,58 +27,128 @@ module.exports.createErrand = async (req, res) => {
     }
 }
 
-module.exports.getAllErrand = async ({skip = 0, limit = 10 }) => {
+module.exports.getAllErrand = async (req, res) => {
+    let aggregate_options = [];
+
+    let page = parseInt(req.query.page) || 0;
+    let limit = parseInt(req.query.limit) || 10;
+
+    const options = {
+        page, limit,
+        collation: {locale: 'en'},
+        customLabels: {
+            totalDocs: 'totalResults',
+            docs: 'errands'
+        }
+    };
+
+    let match = {};
+
+    //filtering by location
+    if (req.query.location) match.location = {$regex: req.query.location, $options: 'i'};
+
+    aggregate_options.push({$match: match});
+    //filtering by category
+    aggregate_options.push({
+      $lookup: {
+          from: 'category',
+          localField: "categoryId",
+          foreignField: "_id",
+          as: "category"
+      }
+    });
+    aggregate_options.push({$unwind: {path: "$category", preserveNullAndEmptyArrays: true}});
+
+    //FILTER BY USERID -- SECOND STAGE - use mongoose.Types.ObjectId() to recreate the moogoses object id
+    if (req.query.userId) {
+        aggregate_options.push({
+            $match: {
+                userId: mongoose.Types.ObjectId(req.query.userId)
+            }
+        });
+    }
+
+    //FILTER BY CATEGORY
+    if (req.query.category) {
+      aggregate_options.push({
+          $match: {
+              categoryId: mongoose.Types.ObjectId(req.query.category)
+          }
+      });
+    }
+    aggregate_options.push({
+      $project: {
+          _id: 1,
+          userId: 1,
+          amount: 1,
+          location: 1,
+          address: 1,
+          deadlineDate: 1,
+          deadlineTime: 1,
+          description: 1,
+          category: { $ifNull: [ "$category._id", null ] },
+          category_name: { $ifNull: [ "$category.name", null ] }
+      }
+    });
+
     try{
-        let errands = await Errand.find({ }).skip(parseInt(skip)).limit(parseInt(limit));
-        return formatMongoData(errands);
+        const myAggregate = Errand.aggregate(aggregate_options);
+        const result = await Errand.aggregatePaginate(myAggregate, options);
+
+        const category = await Category.find({});
+        result["category"] = category;
+        res.status(200).json(result);
+        return formatMongoData(result);
     } catch (error){
-        console.log('Something went wrong: Service: productController', error);
+        console.log('Something went wrong: Service: errandController', error);
         throw new Error(error);
     }
 }
 
-module.exports.getErrandById = async ({ id }) => {
+module.exports.getErrandById = async ({ id, user }) => {
     try{
         chkObjectId(id);
-        let errand = await Errand.findById(id);
+        chkObjectId(user);
+        let errand = await Errand.findById({_id: id, user_id: user});
         if(!errand){
-            throw new Error(constants.productMessage.PRODUCT_NOT_FOUND);
+            throw new Error(constants.errandMessage.ERRAND_NOT_FOUND);
         }
         return formatMongoData(errand);
     } catch (error){
-        console.log('Something went wrong: Service: getProductById', error);
+        console.log('Something went wrong: Service: getErrandById', error);
         throw new Error(error);
     }
 }
 
-module.exports.updateProductById = async ({ id, updateInfo }) => {
+module.exports.updateErrandById = async ({id, userId, update}) => {
     try{
         chkObjectId(id);
-        let product = await Product.findOneAndUpdate(
-            {_id: id},
-            updateInfo,
-            { new: true }
-            );
-        if(!product){
-            throw new Error(constants.productMessage.PRODUCT_NOT_FOUND);
+        chkObjectId(userId);
+
+        const errand = await Errand.findOneAndUpdate({ $and:[{_id: id}, {userId: userId}], $set: update}, {new: true});
+
+        if (!errand) {
+            throw new Error(constants.errandMessage.ERRAND_NOT_FOUND);
         }
-        return formatMongoData(product);
+        
+        return formatMongoData(errand);
     } catch (error){
-        console.log('Something went wrong: Service: updateProductById', error);
+        console.log('Something went wrong: Service: updateErrandById', error);
         throw new Error(error);
     }
 }
 
-module.exports.deleteProductById = async ({ id }) => {
+module.exports.deleteErrandById = async ({ id, userID }) => {
     try{
         chkObjectId(id);
-        let product = await Product.findByIdAndDelete(id);
-        if(!product){
-            throw new Error(constants.productMessage.PRODUCT_NOT_FOUND);
+        chkObjectId(userID);
+        let errand = await Errand.findByIdAndDelete({ $and:[{_id:id}, {userId: userID}]});
+        if(!errand){
+            throw new Error(constants.errandMessage.ERRAND_NOT_FOUND);
         }
-        return formatMongoData(product);
+        res.status(200).json({message: 'Errand has been deleted'});
     } catch (error){
-        console.log('Something went wrong: Service: deleteProductById', error);
+        console.log('Something went wrong: Service: deleteErrandById', error);
         throw new Error(error);
     }
 }

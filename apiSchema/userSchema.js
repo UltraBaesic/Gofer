@@ -10,7 +10,7 @@ module.exports.createUserSchema = Joi.object().keys({
 module.exports.login = Joi.object().keys({
     email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org', 'ng'] } }),
     phoneNumber: Joi.string().min(10).max(13),
-    password: Joi.string().min(5).max(255).required()
+    password: Joi.string().min(5).max(255)
 })
 
 module.exports.updateUserSchema = Joi.object().keys({
