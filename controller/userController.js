@@ -1,4 +1,6 @@
 const userService = require('../service/userService');
+const bcrypt = require("bcrypt");
+const User = require('../database/models/userModel');
 const constants = require('../constants');
 
 module.exports.createUser = async (req,res) => {
@@ -34,7 +36,7 @@ module.exports.login = async (req,res) => {
 module.exports.getProfileById = async (req, res) => {
     let response = {...constants.defaultServerResponse};
     try{
-        const responseFromService = await userService.getProfileById(req.params);
+        const responseFromService = await userService.getProfileById(req.user_id);
         response.status = 200;
         response.message = constants.userMessage.USER_PROFILE_FETCHED;
         response.body = responseFromService;
@@ -50,7 +52,7 @@ module.exports.updateProfileById = async (req, res) => {
     let response = {...constants.defaultServerResponse};
     try{
         const responseFromService = await userService.updateProfileById({
-            id: req.params.id,
+            id: req.user_id,
             updateInfo: req.body
         });
         response.status = 200;
@@ -67,7 +69,7 @@ module.exports.updateProfileById = async (req, res) => {
 module.exports.deleteProfileById = async (req, res) => {
     let response = {...constants.defaultServerResponse};
     try{
-        const responseFromService = await userService.deleteProfileById(req.params);
+        const responseFromService = await userService.deleteProfileById(req.user_id);
         response.status = 200;
         response.message = constants.userMessage.USER_PROFILE_DELETED;
         response.body = responseFromService;
@@ -78,3 +80,66 @@ module.exports.deleteProfileById = async (req, res) => {
     }
     return res.status(response.status).send(response);
 }
+
+module.exports.checkCode = async (req,res) => {
+    let response = {...constants.defaultServerResponse};
+    try{
+        const responseFromService = await userService.checkCode(req.body);
+        response.status = 200;
+        response.message = constants.userMessage.USER_ACTIVATED;
+        response.body = responseFromService;
+    } catch (err){
+        console.log('Something went wrong: Controller: checkCode', err);
+        throw Error ('err');
+        response.message = err.message;
+    }
+    return res.status(response.status).send(response);
+}
+
+module.exports.changePassword = async (req,res) => {
+    try {
+        let user_id = req.user_id;
+        let { password, newPassword } = req.body;
+        if (!password || !newPassword) return res.send({
+            code: 400,
+            message: 'Kindly fill all inputs',
+            data: {}
+        });
+        let user = await User.findOne({ user_id });
+        let validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) return res.send({
+            code: 400,
+            message: "Wrong Password",
+            data: {}
+        });
+        user = await updatePassword(user_id, newPassword)
+        res.send({error: 200,
+            message: "Password successfully changed,login now",
+            data: {}
+        });
+    } catch (error) {
+        res.send({
+            code: 400,
+            message: "An Error Occurred",
+            data: { error }
+        });
+    }
+}
+
+const updatePassword = async (user_id, newPassword) => {
+    try {
+      let password = await bcrypt.hash(newPassword, 12);
+      let newUser = await User.findOneAndUpdate({ user_id }, { password });
+      return ({
+        error: 200,
+        message: "Password Updated",
+        data: { newUser }
+      });
+    } catch (error) {
+      return ({
+        error: 401,
+        message: "An error occurred",
+        data: {}
+      });
+    }
+  }
