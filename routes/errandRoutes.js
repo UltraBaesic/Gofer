@@ -10,10 +10,6 @@ tokenValidation.validateToken,
 joiSchemaValidation.validateBody(errandSchema.createErrandSchema), 
 errandController.createErrand);
 
-router.get('/category', 
-joiSchemaValidation.validateBody(errandSchema.categorySchema), 
-errandController.getCategory);
-
 router.get('/:id', 
 tokenValidation.validateToken,
 errandController.getErrandById);

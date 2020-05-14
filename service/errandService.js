@@ -11,7 +11,7 @@ mongoose.set('useFindAndModify', false);
 
 module.exports.createErrand = async (userId, serivceData) => {
     try{
-        let dupErrand  = await Errand.findOne({ $and: [{ category }, { description }, { address }, { location }] });
+        let dupErrand  = await Errand.findOne({ $and: [{ categoryId }, { description }, { address }, { location }] });
         if (dupErrand) return res.send({
             code: 400,
             message: "Errand already existing, please create new",
@@ -51,13 +51,13 @@ module.exports.getAllErrand = async (req, res) => {
     //filtering by category
     aggregate_options.push({
       $lookup: {
-          from: 'category',
+          from: 'Category',
           localField: "categoryId",
           foreignField: "_id",
-          as: "category"
+          as: "Category"
       }
     });
-    aggregate_options.push({$unwind: {path: "$category", preserveNullAndEmptyArrays: true}});
+    aggregate_options.push({$unwind: {path: "$Category", preserveNullAndEmptyArrays: true}});
 
     //FILTER BY USERID -- SECOND STAGE - use mongoose.Types.ObjectId() to recreate the moogoses object id
     if (req.query.userId) {
@@ -72,7 +72,7 @@ module.exports.getAllErrand = async (req, res) => {
     if (req.query.category) {
       aggregate_options.push({
           $match: {
-              categoryId: mongoose.Types.ObjectId(req.query.category)
+              categoryId: mongoose.Types.ObjectId(req.query.categoryId)
           }
       });
     }
@@ -86,8 +86,8 @@ module.exports.getAllErrand = async (req, res) => {
           deadlineDate: 1,
           deadlineTime: 1,
           description: 1,
-          category: { $ifNull: [ "$category._id", null ] },
-          category_name: { $ifNull: [ "$category.name", null ] }
+          category: { $ifNull: [ "$Category._id", null ] },
+          // categoryName: { $ifNull: [ "$category.categoryName", null ] }
       }
     });
 

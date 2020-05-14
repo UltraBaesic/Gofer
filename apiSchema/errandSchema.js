@@ -2,7 +2,7 @@ const Joi = require ('@hapi/joi');
 
 module.exports.createErrandSchema = Joi.object().keys({
     userId: Joi.string(),
-    category: Joi.string().required(),
+    categoryId: Joi.string().required(),
     address: Joi.string().required(),
     location: Joi.string().required(),
     description: Joi.string(),
@@ -20,7 +20,7 @@ module.exports.getAllErrandSchema = Joi.object().keys({
 
 module.exports.updateErrandSchema = Joi.object().keys({
     userId: Joi.string(),
-    category: Joi.string(),
+    categoryId: Joi.string(),
     address: Joi.string(),
     location: Joi.string(),
     description: Joi.string(),

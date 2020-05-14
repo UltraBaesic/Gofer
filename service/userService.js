@@ -138,6 +138,7 @@ module.exports.verifyPhone = async(user) => {
 
 module.exports.checkCode = async(user) => {
   const id = user.request_id;
+  console.log(verifyRequestId);
     nexmo.verify.check({
         request_id: user.request_id,
         code: user.code

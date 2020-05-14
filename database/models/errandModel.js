@@ -10,7 +10,7 @@ const errandSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: 'Category'
-  },
+    },
     address: {
         type: String,
         required: true
