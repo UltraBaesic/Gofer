@@ -35,6 +35,7 @@ const errandSchema = new mongoose.Schema({
         type: String
     },
     insurance: String,
+    errandRunner: String,
     status: {
         type: String,
         default: "pending",

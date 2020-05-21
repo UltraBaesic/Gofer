@@ -72,25 +72,52 @@ module.exports.deleteErrandById = async (req, res) => {
         response.body = responseFromService;
     } catch (err){
         console.log('Something went wrong: Controller: deleteErrandById', err);
-        throw Error ('err');
+        throw Error (err);
         response.message = err.message;
     }
     return res.status(response.status).send(response);
 }
 
-module.exports.getCategory = async (req, res) => {
+module.exports.postBid = async (req,res) => {
   let response = {...constants.defaultServerResponse};
   try{
-      const responseFromService = await errandService.deleteErrandById({
-          id: req.params.id,
-          userID: req.user.id
-      });
+      const responseFromService = await errandService.postBid(req.params.id, req.body);
       response.status = 200;
-      response.message = constants.productMessage.PRODUCT_DELETED;
+      response.message = constants.errandMessage.BID_SUBMITTED;
       response.body = responseFromService;
   } catch (err){
-      console.log('Something went wrong: Controller: deleteErrandById', err);
-      throw Error ('err');
+      console.log('Something went wrong: Controller: postBid', err);
+      throw Error (err);
+      response.message = err.message;
+  }
+  return res.status(response.status).send(response);
+}
+
+module.exports.getBid = async (req,res) => {
+  let response = {...constants.defaultServerResponse};
+  try{
+      const responseFromService = await errandService.getBids(req.params.id);
+      response.status = 200;
+      response.message = constants.errandMessage.BIDS_FETCHED;
+      response.body = responseFromService;
+  } catch (err){
+      console.log('Something went wrong: Controller: getBid', err);
+      throw Error (err);
+      response.message = err.message;
+  }
+  return res.status(response.status).send(response);
+}
+
+module.exports.deleteBid = async (req,res) => {
+  let response = {...constants.defaultServerResponse};
+  try{
+      const responseFromService = await errandService.deleteBids(req.params.id);
+      response.status = 200;
+      response.message = constants.errandMessage.BID_DELETED;
+      response.body = responseFromService;
+  } catch (err){
+      console.log('Something went wrong: Controller: deleteBid', err);
+      throw Error (err);
       response.message = err.message;
   }
   return res.status(response.status).send(response);

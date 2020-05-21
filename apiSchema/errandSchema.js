@@ -20,7 +20,7 @@ module.exports.getAllErrandSchema = Joi.object().keys({
 
 module.exports.updateErrandSchema = Joi.object().keys({
     userId: Joi.string(),
-    category: Joi.string(),
+    categoryId: Joi.string(),
     address: Joi.string(),
     location: Joi.string(),
     description: Joi.string(),
@@ -28,6 +28,7 @@ module.exports.updateErrandSchema = Joi.object().keys({
     deadlineDate: Joi.string(),
     deadlineTime: Joi.string(),
     insurance: Joi.string(),
+    errandRunner: Joi.string(),
     status: Joi.string()
 });
 

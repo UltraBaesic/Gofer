@@ -9,7 +9,11 @@ module.exports ={
         ERRAND_FETCHED: 'Errand Fetched Successfully!',
         ERRAND_UPDATED: 'Errand Updated Successfully!',
         ERRAND_DELETED: 'Errand Deleted Successfully!',
-        ERRAND_NOT_FOUND: 'Errand Id specified not found'
+        ERRAND_NOT_FOUND: 'Errand Id specified not found',
+        ERRAND_RUNNING_OR_COMPLETED: 'Errand is Ongoing or Completed and not available for Bidding',
+        BID_SUBMITTED: 'Bid for Errand has been submitted',
+        BIDS_FETCHED: 'Bids for Errand Fetched Successfully!',
+        BID_DELETED: 'All Bids for Errand deleted successfully'
     },
     userMessage: {
         USER_CREATED: 'User Created Successfully!',

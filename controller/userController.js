@@ -126,7 +126,7 @@ module.exports.changePassword = async (req,res) => {
     }
 }
 
-const updatePassword = async (user_id, newPassword) => {
+module.exports.updatePassword = async (user_id, newPassword) => {
     try {
       let password = await bcrypt.hash(newPassword, 12);
       let newUser = await User.findOneAndUpdate({ user_id }, { password });
