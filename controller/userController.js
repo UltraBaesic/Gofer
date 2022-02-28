@@ -36,7 +36,7 @@ module.exports.login = async (req,res) => {
 module.exports.getProfileById = async (req, res) => {
     let response = {...constants.defaultServerResponse};
     try{
-        const responseFromService = await userService.getProfileById(req.user_id);
+        const responseFromService = await userService.getProfileById(req.userId);
         response.status = 200;
         response.message = constants.userMessage.USER_PROFILE_FETCHED;
         response.body = responseFromService;
@@ -52,7 +52,7 @@ module.exports.updateProfileById = async (req, res) => {
     let response = {...constants.defaultServerResponse};
     try{
         const responseFromService = await userService.updateProfileById({
-            id: req.user_id,
+            id: req.userId,
             updateInfo: req.body
         });
         response.status = 200;
@@ -69,7 +69,7 @@ module.exports.updateProfileById = async (req, res) => {
 module.exports.deleteProfileById = async (req, res) => {
     let response = {...constants.defaultServerResponse};
     try{
-        const responseFromService = await userService.deleteProfileById(req.user_id);
+        const responseFromService = await userService.deleteProfileById(req.userId);
         response.status = 200;
         response.message = constants.userMessage.USER_PROFILE_DELETED;
         response.body = responseFromService;
@@ -98,7 +98,7 @@ module.exports.checkCode = async (req,res) => {
 
 module.exports.changePassword = async (req,res) => {
     try {
-        let user_id = req.user_id;
+        let user_id = req.userId;
         let { password, newPassword } = req.body;
         if (!password || !newPassword) return res.send({
             code: 400,
